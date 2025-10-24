@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { User } from '../model/Users';
 import { fetchUsers } from '../data/UserApi';
-import { UserCard } from './Card';
+import { UserCard } from './UserCard';
 import './UserList.css';
+import '../App.tsx';
 
 export const UserList = () => {
   const [users, setUsers] = useState<User[]>([]);
