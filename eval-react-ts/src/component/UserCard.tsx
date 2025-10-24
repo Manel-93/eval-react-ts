@@ -1,5 +1,6 @@
 import type { User } from '../model/Users';
 /*import React from 'react';*/
+import { Link } from "react-router-dom";
 import './Card.css';
 import '..App.css';
 
