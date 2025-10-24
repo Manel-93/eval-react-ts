@@ -1,8 +1,8 @@
 import type { User } from '../model/Users';
 /*import React from 'react';*/
 import { Link } from "react-router-dom";
-import './Card.css';
-import '..App.css';
+import './UserCard.css';
+import '../App.css';
 
 interface UserCardProps {
   user: User;
@@ -14,7 +14,7 @@ export const UserCard = ({ user }: UserCardProps) => {
       <img
         src={user.image}
         alt={`Photo de ${user.firstName} ${user.lastName}`}
-        className="user-image"
+        className="user-pdp"
       />
 
       <Link to={`/user/${user.id}`}>

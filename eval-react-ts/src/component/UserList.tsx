@@ -16,7 +16,12 @@ export const UserList = () => {
 
   return (
     <div className="user-list">
-      <h1>Nos Utilisateurs</h1>
+      {/* changed code: header with bordered title */}
+      <div className="user-header">
+        <h2 className="user-header-title">Gestion des utilisateurs</h2>
+      </div>
+
+      <h1>Liste des utilisateurs</h1>
       <div className="user-grid">
         {users.map((user) => (
           <UserCard key={user.id} user={user} />
