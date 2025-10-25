@@ -1,33 +1,46 @@
-import { useEffect, useState, useMemo } from 'react'; // Ajout de useMemo
+import { useEffect, useState, useMemo } from 'react'; 
 import type { User } from '../model/Users';
 import { fetchUsers } from '../data/UserApi';
 import { UserCard } from './UserCard';
 import './UserList.css';
 import '../App.tsx';
 
-// --- CONFIGURATION ---
+
 const USERS_PER_PAGE = 10;
-type SortKey = 'lastName' | 'age' | 'none'; // Clés de tri possibles
+type SortKey = 'lastName' | 'age' | 'none'; 
 
 export const UserList = () => {
-    const [allUsers, setAllUsers] = useState<User[]>([]); // Renommé 'users' en 'allUsers' pour la source
+    const [allUsers, setAllUsers] = useState<User[]>([]); 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortKey, setSortKey] = useState<SortKey>('none');
     const [currentPage, setCurrentPage] = useState(1);
-    const [loading, setLoading] = useState(true); // Ajout d'un état de chargement
+    const [loading, setLoading] = useState(true); 
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchUsers().then(data => {
-            setAllUsers(data);
-            setLoading(false);
-        });
-    }, []);
+        const loadUsers = async () => {
+            setLoading(true);
+            setError(null); 
+            try {
+                const data = await fetchUsers();
+                setAllUsers(data);
+            } catch (err: any) {
+                console.error("Erreur lors du chargement des utilisateurs:", err);
+                const errorMessage = err.message || "Une erreur de connexion est survenue.";
+                setError(errorMessage);
+                setAllUsers([]); 
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    // 1. LOGIQUE DE FILTRAGE, TRI ET PAGINATION
+        loadUsers();
+    }, []);
+
+    
     const processedUsers = useMemo(() => {
         let users = [...allUsers];
 
-        // A. Filtrage (Recherche temps réel par nom, prénom, email)
         if (searchTerm) {
             const lowerCaseSearchTerm = searchTerm.toLowerCase();
             users = users.filter(user =>
@@ -37,7 +50,6 @@ export const UserList = () => {
             );
         }
 
-        // B. Tri par Nom ou Âge
         if (sortKey !== 'none') {
             users.sort((a, b) => {
                 if (sortKey === 'lastName') {
@@ -50,14 +62,10 @@ export const UserList = () => {
             });
         }
         
-        // Important : Réinitialiser la page à 1 si le filtrage ou le tri change
-        // (Ceci doit être géré en dehors de useMemo, mais nous laissons l'utilisateur final trié)
-        // Nous gérons le changement de page via le changement des dépendances.
 
         return users;
     }, [allUsers, searchTerm, sortKey]);
 
-    // Déclencher la réinitialisation de la page quand la liste filtrée/triée change
     useEffect(() => {
         setCurrentPage(1);
     }, [processedUsers]);
@@ -79,6 +87,22 @@ export const UserList = () => {
     
     if (loading) {
         return <div className="loading">Chargement des utilisateurs...</div>;
+    }
+
+    if (error) {
+        return (
+            <div className="error-container">
+                <h2 className="error-title">Une erreur est survenue</h2>
+                <p className="error-message">Nous n'avons pas pu charger la liste des utilisateurs.</p>
+                <p className="error-details">Détails: {error}</p>
+                <button 
+                    onClick={() => window.location.reload()} 
+                    className="reload-button"
+                >
+                    Réessayer
+                </button>
+            </div>
+        );
     }
 
 
@@ -116,9 +140,13 @@ export const UserList = () => {
                         <UserCard key={user.id} user={user} />
                     ))
                 ) : (
-                    <p className="no-results">Aucun utilisateur trouvé.</p>
+                    <p className="no-results">
+                        {allUsers.length === 0 && !loading && !error 
+                            ? "Aucun utilisateur trouvé (l'API peut être vide)." 
+                            : "Aucun utilisateur ne correspond à votre recherche."}
+                    </p>
                 )}
-            </div>
+                </div>
 
             {/* CONTRÔLES DE PAGINATION */}
             {totalPages > 1 && (
