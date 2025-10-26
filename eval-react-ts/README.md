@@ -1,3 +1,57 @@
+#Mon travail
+NIVEAU 1
+1. Afficher la liste des utilisateurs chargée depuis l’API. Utiliser useState et useEffect.
+• Afficher les données principales : photo, prénom, nom, email.
+• Clic sur un utilisateur → afficher ses détails : âge, société, ville, etc.
+• Créer au moins 3 composants :
+• <UserList />, <UserCard />, <UserDetail />.
+• Navigation entre la liste et la fiche de détail via React Router :
+• / → liste
+• /user/:id → fiche de détail
+• Gérer un état de chargement (Loading…) et une erreur réseau.
+
+- Création du modèle, la classe User dans laquelle se trouve les paramètres
+- Création de UserApi.tsx pour récupérer les données avec fetch
+- Création des composants : UserCard, UserList, UserDetail et leur CSS
+- Mise à jour du fichier App.tsx avec les routes
+- Mise à jour du main.tsx avec : <BrowserRouter>
+      <App />
+    </BrowserRouter>
+
+NIVEAU 2
+• Conserver les fonctionnalités du niveau 1.
+• Ajouter :
+• Un champ de recherche (nom, prénom, email) en temps réel.
+• Un tri par nom ou par âge.
+• Une pagination (10 utilisateurs par page).
+• Gestion propre des erreurs via try/catch.
+
+-Ajout des fonctionnnalités dans UserList.tsx
+-Mise à jour de UserApi.tsx et adaptation du css
+-Résultats de l'erreur via try/catch.
+<img width="1911" height="976" alt="image" src="https://github.com/user-attachments/assets/156dc3b8-0449-42f6-a83f-fd3bb0dee26b" />
+*Voir code Image.png
+
+NIVEAU 3 (seulement la première étape)
+Système de favoris : clic sur une étoile de chaque Card → ajout/suppression,
+persistant via localStorage.
+
+-Ajout de l'outil LocalSTorageUtils.tsx
+-Adaptation du UserCard.Css
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
