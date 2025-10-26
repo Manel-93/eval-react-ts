@@ -1,9 +1,11 @@
-import { useEffect, useState, useMemo } from 'react'; 
+import { useEffect, useState, useMemo, useCallback } from 'react'; 
 import type { User } from '../model/Users';
 import { fetchUsers } from '../data/UserApi';
 import { UserCard } from './UserCard';
 import './UserList.css';
 import '../App.tsx';
+// NOUVEL IMPORT
+import { getFavoriteUserIds, toggleFavorite } from '../utils/localStorageUtils';
 
 
 const USERS_PER_PAGE = 10;
@@ -17,15 +19,24 @@ export const UserList = () => {
     const [loading, setLoading] = useState(true); 
     const [error, setError] = useState<string | null>(null);
 
+    // NOUVEL ÉTAT : Liste des IDs d'utilisateurs favoris
+    const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+
+    // 1. Chargement initial des utilisateurs et des favoris
     useEffect(() => {
-        const loadUsers = async () => {
+        const loadData = async () => { // Fonction asynchrone pour charger les deux
             setLoading(true);
             setError(null); 
             try {
+                // Chargement des utilisateurs
                 const data = await fetchUsers();
                 setAllUsers(data);
+                
+                // Chargement des favoris depuis localStorage
+                setFavoriteIds(getFavoriteUserIds());
+                
             } catch (err: any) {
-                console.error("Erreur lors du chargement des utilisateurs:", err);
+                console.error("Erreur lors du chargement des données:", err);
                 const errorMessage = err.message || "Une erreur de connexion est survenue.";
                 setError(errorMessage);
                 setAllUsers([]); 
@@ -34,10 +45,17 @@ export const UserList = () => {
             }
         };
 
-        loadUsers();
-    }, []);
+        loadData();
+    }, []);
+
+    // 2. Fonction de bascule de favori
+    const handleToggleFavorite = useCallback((userId: number) => {
+        const newFavorites = toggleFavorite(userId); 
+        setFavoriteIds(newFavorites);
+    }, []); // La fonction ne dépend de rien, elle est stable
 
     
+    // Filtre de recherche et tri
     const processedUsers = useMemo(() => {
         let users = [...allUsers];
 
@@ -62,7 +80,6 @@ export const UserList = () => {
             });
         }
         
-
         return users;
     }, [allUsers, searchTerm, sortKey]);
 
@@ -137,7 +154,13 @@ export const UserList = () => {
             <div className="user-grid">
                 {paginatedUsers.length > 0 ? (
                     paginatedUsers.map((user) => (
-                        <UserCard key={user.id} user={user} />
+                        // AJOUT des props isFavorite et onToggleFavorite
+                        <UserCard 
+                            key={user.id} 
+                            user={user} 
+                            isFavorite={favoriteIds.includes(user.id)}
+                            onToggleFavorite={handleToggleFavorite}
+                        />
                     ))
                 ) : (
                     <p className="no-results">
